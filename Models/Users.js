@@ -4,6 +4,11 @@ const bcrypt = require('bcrypt');
 const Role = require('./Role')
 
 const User = sequelize.define('User', {
+  UserId: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
   userName: {
     type: DataTypes.STRING,
     allowNull: false,
