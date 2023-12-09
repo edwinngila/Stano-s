@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../Config/Database'); 
-const bcrypt =require('bcrypt');
+const bcrypt = require('bcrypt');
+const Role = require('./Role')
 
 const User = sequelize.define('User', {
   userName: {
@@ -11,7 +12,7 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  Password: {
+  Password: { 
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -23,49 +24,48 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  role: {
-    type: DataTypes.STRING,
-    defaultValue: 'User',
+  roleId: {
+    type: DataTypes.INTEGER,
+    defaultValue: 2,
   },
 });
 
-
 sequelize.sync()
+  .then(async () => {
+    try {
+      const superAdminData = {
+        userName: 'Stano',
+        email: 'admin@gmail.com',
+        password: 'Admin123.',
+        contact: '123456789',
+        location: 'Nairobi',
+        roleId: 1,
+      };
 
-  .then(async() => {
-
-      try {
-        const superAdminData = {
-          userName: 'Stano',
-          email: 'admin@gmail.com',
-          password: 'Admin123.',
-          contact: '123456789',
-          location: 'nairobi',
-          role: 'Admin',
-        };
-
-        const existingSuperAdmin = await User.findOne({
-          where: {
-            email: superAdminData.email,
-          }
-        });
-
-        if (!existingSuperAdmin) {
-          const hashedPassword = await bcrypt.hash(superAdminData.Password, 10);
-          superAdminData.Password = hashedPassword;
-
-          // Creating the super admin user
-          const superAdmin = await User.create(superAdminData);
-          console.log('Super admin created:', superAdmin);
-        } else {
-          console.log('Super admin already exists:', existingSuperAdmin);
+      const existingSuperAdmin = await User.findOne({
+        where: {
+          email: superAdminData.email,
         }
-      } catch (error) {
-        console.error('Error creating super admin:', error);
+      });
+
+      if (!existingSuperAdmin) {
+        const hashedPassword = await bcrypt.hash(superAdminData.password, 10); 
+        superAdminData.Password = hashedPassword;
+
+       
+        const superAdmin = await User.create(superAdminData);
+        console.log('Super admin created:', superAdmin);
+      } else {
+        console.log('Super admin already exists:', existingSuperAdmin);
       }
+    } catch (error) {
+      console.error('Error creating super admin:', error);
+    }
   })
   .catch((err) => {
     console.error('Users error:', err);
   });
+
+  User.belongsTo(Role, { foreignKey:"roleId"});
 
 module.exports = User;

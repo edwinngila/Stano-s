@@ -31,7 +31,6 @@ const RoleController = {
     }
   },
 
-
   getAllRoles: async (req, res) => {
     try {
       const allRoles = await Role.findAll();
@@ -41,10 +40,11 @@ const RoleController = {
       res.status(500).json({ error: 'Internal server error' });
     }
   },
+
   editRole: async (req, res) => {
     try {
       const { roleName } = req.body;
-      const roleId = req.params.roleId;
+      const roleId = req.params.id;
 
 
       if (!roleName) {
@@ -87,7 +87,7 @@ const RoleController = {
 
   deleteRole: async (req, res) => {
     try {
-      const roleId = req.params.roleId;
+      const roleId = req.params.id;
 
       const roleToBeDeleted = await Role.findByPk(roleId);
 

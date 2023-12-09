@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../Config/Database');
-
+const HouseType = require('./HouseType')
 
 const House = sequelize.define('House', {
   houseId: {
@@ -22,13 +22,27 @@ const House = sequelize.define('House', {
     type: DataTypes.FLOAT,
     allowNull: false,
   },
+  Town: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+  },
+  County: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+  },
   location: {
     type: DataTypes.STRING,
   },
-    // UserId: {
-    //   type: DataTypes.INTEGER,
-    // },
+  YearBuilt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  houseTypesId:{
+    type:DataTypes.INTEGER,
+    allowNull: false
+  }
   });
   
+  House.belongsTo(HouseType, {foreignKey:"houseTypesId"})
 
 module.exports = House;

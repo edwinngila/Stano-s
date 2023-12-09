@@ -45,13 +45,13 @@ const userController = {
         return res.status(400).json({ error: [{ message: 'Invalid Email!' }] });
       }
 
-      // Validate the password using PasswordSchema
-      if (!PasswordSchema.validate(Password)) {
+  
+      if (!PasswordSchema.validate(password)) {
         return res.status(400).json({ error: [{ message: 'Password must have at least 8 characters, one uppercase letter, and one special character' }] });
       }
 
       const salt = await bcrypt.genSalt();
-      const HashedPassword = await bcrypt.hash(Password, salt);
+      const HashedPassword = await bcrypt.hash(password, salt);
 
       const newUser = await Users.create({
         userName: userName,
@@ -131,6 +131,53 @@ login: async (req, res) => {
       .status(500)
       .json({ error: [{ message: 'Internal server error' }] });
   }
+},
+getAllUsers: async (req, res) => {
+  try {
+    const allusers = await Users.findAll();
+    res.status(200).json(allusers);
+  } catch (error) {
+    console.log('Error retriving users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+},
+
+
+DeleteUser: async (req, res) => {
+
+  const userId = req.params.id;
+
+  try {
+    const userToDelete = await Users.findByPk(userId);
+
+    if (!userToDelete) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    //confriming if is admin
+    if (userToDelete.roleId === 1) {
+      return res.status(401).json({ error: [{ message: "Can't delete an admin user" }] });
+    }
+
+    //permision to delete non-admin
+    const deleteUser = await Users.destroy({
+      where: {
+        id: userId
+      }
+    })
+
+
+    if (deleteUser) {
+      res.status(200).json({ message: 'User deleted successfully' });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+
+  } catch (error) {
+    console.error('Error deleting item:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+
 },
 
 
