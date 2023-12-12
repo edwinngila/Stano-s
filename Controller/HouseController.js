@@ -1,12 +1,13 @@
 const multer = require('multer');
 const Houses = require('../Models/House');
-const upload = require('../Middlewares/multerConfig')
+const upload = require('../Middlewares/multerConfig');
 
 const HouseController = {
   addHouse: async (req, res) => {
     try {
 
-      upload.single('houseImage')(req, res, async function (err) {
+
+      upload.single('propertyImage')(req, res, async function (err) {
         if (err instanceof multer.MulterError) {
           return res.status(400).json({ error: 'File upload error' });
         } else if (err) {
@@ -18,38 +19,37 @@ const HouseController = {
           return res.status(400).json({ error: 'No file uploaded' });
         }
 
+        const { propertyName, PropertyPrice, Year, Town, County, PropertyType, description } = req.body;
+        const propertyImg = req.file.filename;
 
-        const { houseName, description, price, Town, County, location, YearBuilt, houseTypes } = req.body;
-        const houseImage = req.file.filename;
-
-        if (!houseName || !image || !description || !price || !Town || !County || !location || !YearBuilt || !houseTypes) {
+        if (!propertyName || !PropertyPrice || !Year || !Town || !County || !PropertyType || !description || !propertyImg) {
           return res.status(400).json({ error: [{ message: 'All fields are required' }] });
         }
         const houseExist = await Houses.findOne({
           where: {
-            houseName: houseName
+            PropertyName: propertyName
           }
         });
 
         if (houseExist) {
-          return res.status(401).json({ error: [{ message: 'House already exists' }] });
+          return res.status(401).json({ error: [{ message: 'HouseProperty already exists' }] });
         }
 
-        const newMenu = await Houses.create({
-          houseName: houseName,
-          image: `./Image/${houseImage}`,
-          description: description,
-          price: price,
+        const newHouseProperty = await Houses.create({
+          PropertyName: propertyName,
+          Propertyprice: PropertyPrice,
+          Year: Year,
           Town: Town,
           County: County,
-          location: location,
-          YearBuilt: YearBuilt,
-          houseTypes: houseTypes,
+          PropertyType: PropertyType,
+          description: description,
+          image: `./Image/${propertyImg}`,
         });
 
-        if (newMenu) {
-          return res.status(200).json({ message: 'House added successfully' });
+        if (newHouseProperty) {
+          return res.status(200).json({ message: 'HouseProperty added successfully' });
         }
+
       })
     }
     catch (error) {
@@ -70,37 +70,29 @@ const HouseController = {
 
   editHouses: async (req, res) => {
     try {
-      upload.single('roomImage')(req, res, async function (err) {
+      upload.single('propertyImage')(req, res, async function (err) {
         if (err instanceof multer.MulterError) {
           return res.status(400).json({ error: 'File upload error' });
         } else if (err) {
           return res.status(500).json({ error: 'Internal server error' });
         }
 
-        if (!req.file) {
-          return res.status(400).json({ error: 'No file uploaded' });
-        }
-
-        const { houseName, description, price, Town, County, location, YearBuilt, houseTypes } = req.body;
+        const { propertyName, PropertyPrice, Year, Town, County, PropertyType, description } = req.body;
         const houseId = req.params.id
-        const houseImage = req.file.filename;
 
         const house = await Houses.findByPk(houseId);
-       
 
         if (!house) {
           return res.status(404).json({ error: 'House not found' });
         }
 
-        house.houseName = houseName;
-        house.image = `./Image/${houseImage}`;
-        house.description = description;
-        house.price = price;
+        house.propertyName = propertyName;
+        house.PropertyPrice = PropertyPrice;
+        house.Year = Year;
         house.Town = Town;
         house.County = County;
-        house.location = location;
-        house.YearBuilt = YearBuilt;
-        house.houseTypes = houseTypes;
+        house.PropertyType = PropertyType;
+        house.description = description;
 
         await house.save();
 
@@ -109,31 +101,31 @@ const HouseController = {
     }
     catch (error) {
 
-        return res.status(500).json({ error: 'Internal server error' });
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  deleteHouses: async (req, res) => {
+    const houseId = req.params.id;
+
+    try {
+      const deletedItem = await Houses.destroy({
+        where: {
+          houseId: houseId,
+        },
+      });
+
+      if (deletedItem) {
+        res.status(200).json({ message: 'House deleted successfully' });
+      } else {
+        res.status(404).json({ error: 'Item not found' });
       }
-    },
-
-    deleteHouses: async (req, res) => {
-      const houseId = req.params.id;
-
-      try {
-        const deletedItem = await Houses.destroy({
-          where: {
-            houseId: houseId,
-          },
-        });
-
-        if (deletedItem) {
-          res.status(200).json({ message: 'House deleted successfully' });
-        } else {
-          res.status(404).json({ error: 'Item not found' });
-        }
-      } catch (error) {
-        console.error('Error deleting item:', error);
-        res.status(500).json({ error: 'Internal server error' });
-      }
-    },
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
 
 };
 
-  module.exports = HouseController;
+module.exports = HouseController;
