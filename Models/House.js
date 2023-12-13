@@ -41,6 +41,10 @@ const House = sequelize.define('HouseProperty', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  UserId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
 
 });
 

@@ -79,7 +79,7 @@ login: async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(401).json({ error: [{ message: 'All fields are requirednccccccccccccccccccccccccc' }] });
+      return res.status(401).json({ error: [{ message: 'All fields are requiredn' }] });
     }
 
 
@@ -110,14 +110,13 @@ login: async (req, res) => {
    
     const userData = {
       message: 'Login successful',
+      userId:EmailExist.UserId,
       userName: EmailExist.userName,
       contact: EmailExist.contact,
       location: EmailExist.location,
       role: EmailExist.roleId, 
       token: token
     };
-
-    console.log("user" ,userData);
 
     res.cookie('userData', JSON.stringify(userData), { httpOnly: true });
   
@@ -135,7 +134,7 @@ login: async (req, res) => {
 getAllUsers: async (req, res) => {
   try {
     const allusers = await Users.findAll();
-    res.status(200).json(allusers);
+    res.status(200).json({allusers:allusers});
   } catch (error) {
     console.log('Error retriving users:', error);
     res.status(500).json({ error: 'Internal server error' });

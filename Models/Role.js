@@ -29,10 +29,9 @@ sequelize.sync()
       });
 
       if (!existingAdminRole) {
-        const adminRoleRecord = await Role.create(adminRole);
-        console.log('Admin role created:', adminRoleRecord);
+        await Role.create(adminRole);
       } else {
-        console.log('Admin role already exists:', existingAdminRole);
+        console.log('Admin role already exists:');
       }
 
       // Role 2: User
@@ -49,9 +48,7 @@ sequelize.sync()
 
       if (!existingUserRole) {
         const userRoleRecord = await Role.create(userRole);
-        console.log('User role created:', userRoleRecord);
       } else {
-        console.log('User role already exists:', existingUserRole);
       }
     } catch (error) {
       console.error('Error creating roles:', error);

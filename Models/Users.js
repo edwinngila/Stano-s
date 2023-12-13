@@ -58,8 +58,7 @@ sequelize.sync()
         superAdminData.Password = hashedPassword;
 
        
-        const superAdmin = await User.create(superAdminData);
-        console.log('Super admin created:', superAdmin);
+       await User.create(superAdminData);
       } else {
         console.log('Super admin already exists:', existingSuperAdmin);
       }

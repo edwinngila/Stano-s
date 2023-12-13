@@ -1,6 +1,8 @@
 const multer = require('multer');
+const users =require('../Models/Users');
 const Houses = require('../Models/House');
 const upload = require('../Middlewares/multerConfig');
+const { where } = require('sequelize');
 
 const HouseController = {
   addHouse: async (req, res) => {
@@ -19,10 +21,10 @@ const HouseController = {
           return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        const { propertyName, PropertyPrice, Year, Town, County, PropertyType, description } = req.body;
+        const { propertyName, PropertyPrice, Year, Town, County, PropertyType, description,UserId } = req.body;
         const propertyImg = req.file.filename;
 
-        if (!propertyName || !PropertyPrice || !Year || !Town || !County || !PropertyType || !description || !propertyImg) {
+        if (!propertyName || !PropertyPrice || !Year || !Town || !County || !PropertyType || !description || !propertyImg ||!UserId) {
           return res.status(400).json({ error: [{ message: 'All fields are required' }] });
         }
         const houseExist = await Houses.findOne({
@@ -38,12 +40,13 @@ const HouseController = {
         const newHouseProperty = await Houses.create({
           PropertyName: propertyName,
           Propertyprice: PropertyPrice,
+          UserId:UserId,
           Year: Year,
           Town: Town,
           County: County,
           PropertyType: PropertyType,
           description: description,
-          image: `./Image/${propertyImg}`,
+          image: `${propertyImg}`,
         });
 
         if (newHouseProperty) {
@@ -61,7 +64,7 @@ const HouseController = {
   getAllHouses: async (req, res) => {
     try {
       const allItems = await Houses.findAll();
-      res.status(200).json(allItems);
+      res.status(200).json({allItems:allItems});
     } catch (error) {
       console.log('Error retriving users:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -126,6 +129,31 @@ const HouseController = {
     }
   },
 
+  getHouseById: async (req, res) => {
+    const houseId = req.params.id;
+
+    try {
+      const allItems = await Houses.findOne(
+        {
+          where:{
+            houseId:houseId
+          },
+          include:[
+            {
+              model:users
+            }
+          ]
+        }
+      );
+      res.status(200).json({allItems:allItems});
+    } catch (error) {
+      console.log('Error retriving users:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+
 };
+
 
 module.exports = HouseController;

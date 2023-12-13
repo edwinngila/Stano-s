@@ -6,6 +6,7 @@ const Role = require('./Models/Role');
 const House = require('./Models/House');
 const HouseType = require('./Models/HouseType');
 const HouseOrders = require('./Models/HouseOrder');
+const path=require('path');
 
 const app = express();
 
@@ -19,12 +20,17 @@ const corsOptions = {
   methods: '*',
 };
 
-
+//*joins relationships
+User.hasMany(House,{foreignKey:'UserId'});
+House.belongsTo(User,{foreignKey:'UserId'});
 
 app.use(cors(corsOptions))
 app.use(express.json())
 
 app.use('/realstate', routes);
+
+//**Get img from the backend middleware */
+app.use('/Image',express.static(path.join(__dirname,'Image')));
 
 
 async function startServer() {
@@ -39,7 +45,7 @@ async function startServer() {
     await House.sync();
     await HouseOrders.sync();
     
-    const PORT = process.env.PORT || 3000;
+    const PORT = process.env.PORT || 7000;
     app.listen(PORT, () => console.log(`Listening to port ${PORT}`));
   } catch (error) {
     console.error('Database connection error:', error);
